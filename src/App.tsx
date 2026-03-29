@@ -71,9 +71,10 @@ export default function App() {
     localStorage.setItem("isAuthenticated", String(isAuthenticated));
   }, [isAuthenticated]);
 
-  // --- Estados de Datos del Portfolio ---
+  // --- Estados de Datos del Portfolio con localStorage ---
   const [profilePic, setProfilePic] = useState<string | null>(null);
   const [cvFile, setCvFile] = useState<File | null>(null);
+  const [cvFileName, setCvFileName] = useState<string>("cv.pdf");
   
   const [heroInfo, setHeroInfo] = useState({
     name: "José Ricardo Casdelo Navarro",
@@ -98,6 +99,49 @@ export default function App() {
     experiences,
     studies
   });
+
+  // --- Cargar datos del localStorage al montar el componente ---
+  useEffect(() => {
+    const saved = localStorage.getItem("portfolioData");
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.heroInfo) setHeroInfo(data.heroInfo);
+        if (data.contactInfo) setContactInfo(data.contactInfo);
+        if (data.footerInfo) setFooterInfo(data.footerInfo);
+        if (data.appData) setAppData(data.appData);
+      } catch (e) {
+        console.error("Error cargando datos guardados:", e);
+      }
+    }
+
+    const savedProfilePic = localStorage.getItem("profilePic");
+    if (savedProfilePic) {
+      setProfilePic(savedProfilePic);
+    }
+
+    const savedCvFileName = localStorage.getItem("cvFileName");
+    if (savedCvFileName) {
+      setCvFileName(savedCvFileName);
+    }
+  }, []);
+
+  // --- Guardar datos en localStorage cuando cambien ---
+  useEffect(() => {
+    const dataToSave = {
+      heroInfo,
+      contactInfo,
+      footerInfo,
+      appData
+    };
+    localStorage.setItem("portfolioData", JSON.stringify(dataToSave));
+  }, [heroInfo, contactInfo, footerInfo, appData]);
+
+  useEffect(() => {
+    if (profilePic) {
+      localStorage.setItem("profilePic", profilePic);
+    }
+  }, [profilePic]);
 
   // --- Funciones de Lógica ---
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
@@ -129,23 +173,56 @@ export default function App() {
     const file = e.target.files?.[0];
     if (file && file.type === 'application/pdf') {
       setCvFile(file);
+      setCvFileName(file.name);
+      localStorage.setItem("cvFileName", file.name);
+
+      // Guardar el CV como base64 en localStorage
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string;
+        localStorage.setItem("cvFileData", base64);
+      };
+      reader.readAsDataURL(file);
     } else if (file) {
       alert('Por favor selecciona un archivo PDF válido');
     }
   };
 
   const downloadCV = () => {
-    if (cvFile) {
-      const url = URL.createObjectURL(cvFile);
+    const savedCvData = localStorage.getItem("cvFileData");
+    
+    if (savedCvData) {
+      // Descargar CV cargado por el usuario
       const link = document.createElement('a');
-      link.href = url;
-      link.download = cvFile.name;
+      link.href = savedCvData;
+      link.download = cvFileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+    } else {
+      // Descargar CV por defecto
+      const link = document.createElement('a');
+      link.href = '/cv.pdf';
+      link.download = 'CV_Jose_Ricardo_Casdelo.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   };
+
+  // Cargar CV del localStorage o usar el default
+  useEffect(() => {
+    const savedCvData = localStorage.getItem("cvFileData");
+    if (savedCvData) {
+      // Convertir base64 de vuelta a File
+      fetch(savedCvData)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], cvFileName, { type: 'application/pdf' });
+          setCvFile(file);
+        });
+    }
+  }, []);
 
   const handleExperienceChange = (index: number, field: string, value: string) => {
     const newExperiences = [...appData.experiences];
@@ -245,18 +322,7 @@ export default function App() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button 
-              onClick={() => {
-                if (cvFile) {
-                  downloadCV();
-                } else {
-                  const link = document.createElement('a');
-                  link.href = '/cv.pdf';
-                  link.download = 'CV_Jose_Ricardo_Casdelo.pdf';
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                }
-              }}
+              onClick={downloadCV}
               className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:scale-105 shadow-lg shadow-brand/20 cursor-pointer"
             >
               <Download className="w-5 h-5" />
@@ -535,9 +601,9 @@ export default function App() {
                   <div className="flex-1">
                     <div className="text-sm text-zinc-300 mb-3">
                       {cvFile ? (
-                        <span>📄 {cvFile.name} ({(cvFile.size / 1024 / 1024).toFixed(2)} MB)</span>
+                        <span>📄 {cvFile.name} ({(cvFile.size / 1024 / 1024).toFixed(2)} MB) - <span className="text-brand font-medium">Personalizado</span></span>
                       ) : (
-                        <span className="text-zinc-500">No hay CV cargado actualmente</span>
+                        <span className="text-zinc-400">📄 CV por defecto - <span className="text-brand font-medium">Disponible</span></span>
                       )}
                     </div>
                     <label className="cursor-pointer bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-sm text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.1)] w-fit">
@@ -545,14 +611,12 @@ export default function App() {
                       <input type="file" accept="application/pdf" className="hidden" onChange={handleCVUpload} />
                     </label>
                   </div>
-                  {cvFile && (
-                    <button 
-                      onClick={downloadCV}
-                      className="bg-brand hover:bg-brand-hover text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 shadow-[0_0_10px_rgba(59,130,246,0.2)] whitespace-nowrap"
-                    >
-                      <Download className="w-4 h-4" /> Descargar
-                    </button>
-                  )}
+                  <button 
+                    onClick={downloadCV}
+                    className="bg-brand hover:bg-brand-hover text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 shadow-[0_0_10px_rgba(59,130,246,0.2)] whitespace-nowrap"
+                  >
+                    <Download className="w-4 h-4" /> Descargar
+                  </button>
                 </div>
               </div>
 
