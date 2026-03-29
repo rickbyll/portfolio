@@ -61,14 +61,56 @@ export default function App() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem("isAuthenticated") === "true";
+    const token = localStorage.getItem("adminToken");
+    const tokenTime = localStorage.getItem("adminTokenTime");
+    
+    if (!token || !tokenTime) return false;
+    
+    // Verificar si el token ha expirado
+    const expiryDays = parseInt(import.meta.env.VITE_TOKEN_EXPIRY_DAYS || "30");
+    const expiryMs = expiryDays * 24 * 60 * 60 * 1000;
+    const isExpired = Date.now() - parseInt(tokenTime) > expiryMs;
+    
+    if (isExpired) {
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminTokenTime");
+      return false;
+    }
+    
+    return true;
   });
   const [loginError, setLoginError] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [tokenExpiredWarning, setTokenExpiredWarning] = useState(false);
+
+  // Validar token en cada montura
+  useEffect(() => {
+    const token = localStorage.getItem("adminToken");
+    const tokenTime = localStorage.getItem("adminTokenTime");
+    
+    if (token && tokenTime) {
+      const expiryDays = parseInt(import.meta.env.VITE_TOKEN_EXPIRY_DAYS || "30");
+      const expiryMs = expiryDays * 24 * 60 * 60 * 1000;
+      const isExpired = Date.now() - parseInt(tokenTime) > expiryMs;
+      
+      if (isExpired) {
+        setTokenExpiredWarning(true);
+        setIsAuthenticated(false);
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("adminTokenTime");
+      }
+    }
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem("isAuthenticated", String(isAuthenticated));
+    if (isAuthenticated) {
+      localStorage.setItem("adminToken", "active");
+      localStorage.setItem("adminTokenTime", Date.now().toString());
+    } else {
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminTokenTime");
+    }
   }, [isAuthenticated]);
 
   // --- Estados de Datos del Portfolio con localStorage ---
@@ -149,13 +191,17 @@ export default function App() {
     const user = username.trim();
     const pass = password.trim();
 
-    if (user === "rickbyll" && pass === "Jrcn112928*") {
+    const correctUser = import.meta.env.VITE_ADMIN_USER;
+    const correctPass = import.meta.env.VITE_ADMIN_PASS;
+
+    if (user === correctUser && pass === correctPass) {
       setIsAuthenticated(true);
       setIsLoginOpen(false);
       setIsAdminOpen(true);
       setLoginError("");
       setUsername("");
       setPassword("");
+      setTokenExpiredWarning(false);
     } else {
       setLoginError("Credenciales incorrectas");
     }
@@ -519,12 +565,19 @@ export default function App() {
       {isLoginOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-bg-dark/90 backdrop-blur-xl border border-white/10 p-8 rounded-2xl w-full max-w-md relative animate-in fade-in zoom-in duration-200 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
-            <button onClick={() => setIsLoginOpen(false)} className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors">
+            <button onClick={() => { setIsLoginOpen(false); setTokenExpiredWarning(false); }} className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors">
               <X className="w-5 h-5" />
             </button>
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <Lock className="w-6 h-6 text-brand" /> Acceso Admin
             </h2>
+            
+            {tokenExpiredWarning && (
+              <div className="mb-4 p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg">
+                <p className="text-yellow-400 text-sm font-medium">⏰ Tu sesión expiró. Por favor, inicia sesión de nuevo.</p>
+              </div>
+            )}
+            
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-400 mb-1">Usuario</label>
@@ -548,7 +601,13 @@ export default function App() {
                   required 
                 />
               </div>
-              {loginError && <p className="text-red-500 text-sm font-medium">{loginError}</p>}
+              
+              {loginError && (
+                <div className="p-3 bg-red-900/30 border border-red-600/50 rounded-lg">
+                  <p className="text-red-400 text-sm font-medium">❌ {loginError}</p>
+                </div>
+              )}
+              
               <button type="submit" className="w-full bg-brand hover:bg-brand-hover text-white font-medium py-2.5 rounded-lg transition-colors mt-4">
                 Ingresar
               </button>
