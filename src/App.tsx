@@ -158,6 +158,7 @@ export default function App() {
   const [tokenExpiredWarning, setTokenExpiredWarning] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
   const [autoSaveIndicator, setAutoSaveIndicator] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Validar token en cada montura
   useEffect(() => {
@@ -469,12 +470,12 @@ export default function App() {
       {/* Background Glows for Liquid Glass Effect */}
       {/* Navigation Bar */}
       <nav className="fixed top-0 left-0 right-0 z-40 bg-bg-dark border-b border-zinc-800">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between text-sm font-medium">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           
           {/* Botón de Perfil / Admin */}
           <button 
             onClick={() => isAuthenticated ? setIsAdminOpen(true) : setIsLoginOpen(true)}
-            className="w-10 h-10 rounded-full overflow-hidden border-2 border-zinc-600 flex items-center justify-center bg-zinc-900 hover:border-brand hover:bg-blue-900/20 transition-all duration-200"
+            className="w-10 h-10 rounded-full overflow-hidden border-2 border-zinc-600 flex items-center justify-center bg-zinc-900 hover:border-brand hover:bg-blue-900/20 transition-all duration-200 flex-shrink-0"
             title="Editar Portfolio"
           >
             {profilePic ? (
@@ -484,13 +485,65 @@ export default function App() {
             )}
           </button>
 
-          <div className="flex items-center gap-6 md:gap-10">
+          {/* Desktop Navigation */}
+          <div className="hidden sm:flex items-center gap-6 md:gap-10 text-sm font-medium">
             <a href="#experiencia" className="text-white hover:text-brand transition-colors duration-200">Experiencia</a>
             <a href="#habilidades" className="text-white hover:text-brand transition-colors duration-200">Habilidades</a>
             <a href="#educacion" className="text-white hover:text-brand transition-colors duration-200">Educación</a>
             <a href="#contacto" className="text-white hover:text-brand transition-colors duration-200">Contacto</a>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="sm:hidden flex items-center justify-center w-10 h-10 text-white hover:text-brand transition-colors"
+            title="Menú"
+          >
+            {isMobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="sm:hidden border-t border-zinc-800 bg-zinc-900/95 backdrop-blur-sm">
+            <div className="px-4 py-2 space-y-2">
+              <a 
+                href="#experiencia" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-lg text-white hover:bg-zinc-800 hover:text-brand transition-colors duration-200 text-sm font-medium"
+              >
+                Experiencia
+              </a>
+              <a 
+                href="#habilidades" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-lg text-white hover:bg-zinc-800 hover:text-brand transition-colors duration-200 text-sm font-medium"
+              >
+                Habilidades
+              </a>
+              <a 
+                href="#educacion" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-lg text-white hover:bg-zinc-800 hover:text-brand transition-colors duration-200 text-sm font-medium"
+              >
+                Educación
+              </a>
+              <a 
+                href="#contacto" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-lg text-white hover:bg-zinc-800 hover:text-brand transition-colors duration-200 text-sm font-medium"
+              >
+                Contacto
+              </a>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
