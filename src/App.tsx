@@ -576,7 +576,7 @@ export default function App() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <button 
               onClick={downloadCV}
-              className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:scale-105 shadow-lg shadow-brand/20 cursor-pointer"
+              className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200 shadow-lg shadow-brand/20 cursor-pointer"
             >
               <Download className="w-5 h-5" />
               Descargar CV
@@ -585,7 +585,7 @@ export default function App() {
               href={contactInfo.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-brand/50 hover:text-brand text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]"
+              className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-brand/50 hover:text-brand text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]"
             >
               <Linkedin className="w-5 h-5" />
               LinkedIn
@@ -602,22 +602,22 @@ export default function App() {
           {appData.experiences.map((exp, index) => (
             <motion.div 
               key={index} 
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
               className="relative pl-8 md:pl-12"
             >
               {/* Timeline Dot */}
               <span className="absolute -left-[5px] top-2 h-2.5 w-2.5 rounded-full bg-brand ring-4 ring-bg-dark"></span>
 
-              <div className="bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 hover:bg-white/[0.06] hover:border-brand/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] group relative overflow-hidden">
+              <div className="bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 hover:bg-white/[0.06] hover:border-brand/50 transition-all duration-200 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] group relative overflow-hidden">
                 {/* Subtle inner glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
 
                 <div className="flex flex-col md:flex-row md:items-start justify-between mb-4 gap-2 relative z-10">
                   <div>
-                    <h3 className="text-xl md:text-2xl font-bold mb-2 group-hover:text-brand transition-colors">
+                    <h3 className="text-xl md:text-2xl font-bold mb-2 group-hover:text-brand transition-colors duration-150">
                       {exp.role}
                     </h3>
                     <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400">
@@ -661,19 +661,19 @@ export default function App() {
             return (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-2xl p-8 flex flex-col items-center text-center hover:bg-white/[0.06] hover:border-brand/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] group relative overflow-hidden"
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className="bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-2xl p-8 flex flex-col items-center text-center hover:bg-white/[0.06] hover:border-brand/50 transition-all duration-200 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] group relative overflow-hidden"
               >
                 {/* Subtle inner glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-2xl mb-6 group-hover:scale-110 transition-transform shadow-inner relative z-10">
+                <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-2xl mb-6 shadow-inner relative z-10">
                   <Icon className="w-8 h-8 text-brand drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" strokeWidth={2} />
                 </div>
-                <h3 className="text-xl font-bold mb-3 group-hover:text-brand transition-colors relative z-10">{skill.title}</h3>
+                <h3 className="text-xl font-bold mb-3 group-hover:text-brand transition-colors duration-150 relative z-10">{skill.title}</h3>
                 <p className="text-zinc-400 leading-relaxed text-sm relative z-10">
                   {skill.description}
                 </p>
@@ -691,17 +691,17 @@ export default function App() {
           {appData.studies.map((study, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-2xl p-8 hover:bg-white/[0.06] hover:border-brand/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] group relative overflow-hidden"
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+              className="bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-2xl p-8 hover:bg-white/[0.06] hover:border-brand/50 transition-all duration-200 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] group relative overflow-hidden"
             >
               {/* Subtle inner glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
 
               <div className="relative z-10">
-                <h3 className="text-xl md:text-2xl font-bold mb-2 group-hover:text-brand transition-colors">
+                <h3 className="text-xl md:text-2xl font-bold mb-2 group-hover:text-brand transition-colors duration-150">
                   {study.degree}
                 </h3>
                 <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400 mb-4">
@@ -728,10 +728,10 @@ export default function App() {
       {/* Footer CTA */}
       <section id="contacto" className="py-24 px-6 max-w-3xl mx-auto text-center">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.3 }}
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             {footerInfo.title}
@@ -743,14 +743,14 @@ export default function App() {
           <div className="flex flex-wrap justify-center gap-4 mb-16">
             <a 
               href={`mailto:${contactInfo.email}`} 
-              className="inline-flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:scale-105 shadow-lg shadow-brand/20 text-base"
+              className="inline-flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200 shadow-lg shadow-brand/20 text-base"
             >
               <Mail className="w-5 h-5 text-white" />
               <span className="font-semibold">{contactInfo.email}</span>
             </a>
             <a 
               href={`tel:+34${contactInfo.phone.replace(/\s/g, '')}`} 
-              className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-brand/50 hover:text-brand text-white px-6 py-2.5 rounded-lg font-medium transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]"
+              className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-brand/50 hover:text-brand text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]"
             >
               <Phone className="w-5 h-5" />
               {contactInfo.phone}
