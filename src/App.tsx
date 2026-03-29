@@ -369,7 +369,7 @@ export default function App() {
     } else {
       // Descargar CV por defecto
       const link = document.createElement('a');
-      link.href = '/cv.pdf';
+      link.href = './cv.pdf';
       link.download = 'CV_Jose_Ricardo_Casdelo.pdf';
       document.body.appendChild(link);
       link.click();
