@@ -73,6 +73,7 @@ export default function App() {
 
   // --- Estados de Datos del Portfolio ---
   const [profilePic, setProfilePic] = useState<string | null>(null);
+  const [cvFile, setCvFile] = useState<File | null>(null);
   
   const [heroInfo, setHeroInfo] = useState({
     name: "José Ricardo Casdelo Navarro",
@@ -121,6 +122,28 @@ export default function App() {
     if (file) {
       const url = URL.createObjectURL(file);
       setProfilePic(url);
+    }
+  };
+
+  const handleCVUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      setCvFile(file);
+    } else if (file) {
+      alert('Por favor selecciona un archivo PDF válido');
+    }
+  };
+
+  const downloadCV = () => {
+    if (cvFile) {
+      const url = URL.createObjectURL(cvFile);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = cvFile.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
   };
 
@@ -221,14 +244,24 @@ export default function App() {
             {heroInfo.description}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <a 
-              href="/cv.pdf" 
-              download="CV_Jose_Ricardo_Casdelo.pdf"
-              className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:scale-105 shadow-lg shadow-brand/20"
+            <button 
+              onClick={() => {
+                if (cvFile) {
+                  downloadCV();
+                } else {
+                  const link = document.createElement('a');
+                  link.href = '/cv.pdf';
+                  link.download = 'CV_Jose_Ricardo_Casdelo.pdf';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }
+              }}
+              className="flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:scale-105 shadow-lg shadow-brand/20 cursor-pointer"
             >
               <Download className="w-5 h-5" />
               Descargar CV
-            </a>
+            </button>
             <a 
               href={contactInfo.linkedin}
               target="_blank"
@@ -492,6 +525,34 @@ export default function App() {
                     <Upload className="w-4 h-4" /> Subir nueva foto
                     <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                   </label>
+                </div>
+              </div>
+
+              {/* Gestión de CV */}
+              <div className="bg-bg-dark p-4 rounded-xl border border-zinc-800">
+                <label className="block text-sm font-medium text-zinc-400 mb-4">Curriculum Vitae</label>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <div className="text-sm text-zinc-300 mb-3">
+                      {cvFile ? (
+                        <span>📄 {cvFile.name} ({(cvFile.size / 1024 / 1024).toFixed(2)} MB)</span>
+                      ) : (
+                        <span className="text-zinc-500">No hay CV cargado actualmente</span>
+                      )}
+                    </div>
+                    <label className="cursor-pointer bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-sm text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 shadow-[0_0_10px_rgba(0,0,0,0.1)] w-fit">
+                      <Upload className="w-4 h-4" /> Cargar o Reemplazar CV
+                      <input type="file" accept="application/pdf" className="hidden" onChange={handleCVUpload} />
+                    </label>
+                  </div>
+                  {cvFile && (
+                    <button 
+                      onClick={downloadCV}
+                      className="bg-brand hover:bg-brand-hover text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 shadow-[0_0_10px_rgba(59,130,246,0.2)] whitespace-nowrap"
+                    >
+                      <Download className="w-4 h-4" /> Descargar
+                    </button>
+                  )}
                 </div>
               </div>
 
