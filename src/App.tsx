@@ -509,35 +509,43 @@ export default function App() {
           </button>
         </div>
 
+        {/* Mobile Menu Overlay - Close on click outside */}
+        {isMobileMenuOpen && (
+          <div 
+            className="sm:hidden fixed inset-0 top-16 z-30 bg-black/20 backdrop-blur-sm"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="sm:hidden border-t border-zinc-800 bg-zinc-900/95 backdrop-blur-sm">
+          <div className="sm:hidden relative z-40 border-t border-zinc-700 bg-gradient-to-b from-blue-900/20 to-zinc-800/60 backdrop-blur-md">
             <div className="px-4 py-2 space-y-2">
               <a 
                 href="#experiencia" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-lg text-white hover:bg-zinc-800 hover:text-brand transition-colors duration-200 text-sm font-medium"
+                className="block px-3 py-2 rounded-lg text-white hover:bg-white/10 hover:text-brand transition-colors duration-200 text-sm font-medium"
               >
                 Experiencia
               </a>
               <a 
                 href="#habilidades" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-lg text-white hover:bg-zinc-800 hover:text-brand transition-colors duration-200 text-sm font-medium"
+                className="block px-3 py-2 rounded-lg text-white hover:bg-white/10 hover:text-brand transition-colors duration-200 text-sm font-medium"
               >
                 Habilidades
               </a>
               <a 
                 href="#educacion" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-lg text-white hover:bg-zinc-800 hover:text-brand transition-colors duration-200 text-sm font-medium"
+                className="block px-3 py-2 rounded-lg text-white hover:bg-white/10 hover:text-brand transition-colors duration-200 text-sm font-medium"
               >
                 Educación
               </a>
               <a 
                 href="#contacto" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-lg text-white hover:bg-zinc-800 hover:text-brand transition-colors duration-200 text-sm font-medium"
+                className="block px-3 py-2 rounded-lg text-white hover:bg-white/10 hover:text-brand transition-colors duration-200 text-sm font-medium"
               >
                 Contacto
               </a>
