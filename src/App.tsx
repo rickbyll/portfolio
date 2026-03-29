@@ -156,6 +156,8 @@ export default function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [tokenExpiredWarning, setTokenExpiredWarning] = useState(false);
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const [autoSaveIndicator, setAutoSaveIndicator] = useState(false);
 
   // Validar token en cada montura
   useEffect(() => {
@@ -250,6 +252,11 @@ export default function App() {
       appData
     };
     localStorage.setItem("portfolioData", JSON.stringify(dataToSave));
+    
+    // Mostrar indicador de guardado
+    setAutoSaveIndicator(true);
+    const timer = setTimeout(() => setAutoSaveIndicator(false), 800);
+    return () => clearTimeout(timer);
   }, [heroInfo, contactInfo, footerInfo, appData]);
 
   useEffect(() => {
@@ -1041,9 +1048,22 @@ export default function App() {
 
               <button 
                 onClick={() => setIsAdminOpen(false)} 
-                className="w-full bg-brand hover:bg-brand-hover text-white font-medium py-3 rounded-lg transition-colors flex items-center justify-center gap-2 mt-4 shadow-lg shadow-brand/20"
+                className="w-full bg-brand hover:bg-brand-hover text-white font-medium py-3 rounded-lg transition-colors flex items-center justify-center gap-2 mt-4 shadow-lg shadow-brand/20 relative"
               >
                 <Save className="w-5 h-5" /> Guardar y Cerrar
+                
+                {/* Indicador de guardado automático */}
+                {autoSaveIndicator && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="absolute right-4 flex items-center gap-1 text-xs bg-green-500/20 px-2 py-1 rounded text-green-300"
+                  >
+                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                    Guardado
+                  </motion.div>
+                )}
               </button>
             </div>
           </div>
