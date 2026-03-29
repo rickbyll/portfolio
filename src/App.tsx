@@ -469,7 +469,7 @@ export default function App() {
       {/* Background Glows for Liquid Glass Effect */}
       {/* Navigation Bar */}
       <nav className="fixed top-0 left-0 right-0 z-40 bg-bg-dark border-b border-zinc-800">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between text-sm font-medium text-white">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between text-sm font-medium">
           
           {/* Botón de Perfil / Admin */}
           <button 
@@ -684,7 +684,7 @@ export default function App() {
               href={`mailto:${contactInfo.email}`} 
               className="inline-flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:scale-105 shadow-lg shadow-brand/20 text-base"
             >
-              <Mail className="w-5 h-5" />
+              <Mail className="w-5 h-5 text-white" />
               <span className="font-semibold">{contactInfo.email}</span>
             </a>
             <a 

@@ -213,14 +213,28 @@ input.success {
    ============================================ */
 
 a {
-  color: var(--color-brand);
   text-decoration: none;
   font-weight: 500;
 }
 
-a:hover {
+/* Links con color azul por defecto (excepto nav) */
+a:not(nav a) {
+  color: var(--color-brand);
+}
+
+a:not(nav a):hover {
   color: var(--color-brand-hover);
-  text-decoration: underline;
+}
+
+/* Nav links - blanco a azul */
+nav a {
+  color: white;
+  text-decoration: none !important;
+  transition: color 200ms ease;
+}
+
+nav a:hover {
+  color: var(--color-brand);
 }
 
 /* ============================================
