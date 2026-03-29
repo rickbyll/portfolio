@@ -25,6 +25,79 @@ import {
 } from "lucide-react";
 import { skills, experiences, studies } from "./data";
 
+// ============================================
+// FUNCIONES DE SEGURIDAD Y VALIDACIÓN
+// ============================================
+
+// Sanitizar URLs para evitar javascript: y data:
+const sanitizeUrl = (url: string): string => {
+  if (!url) return "";
+  const trimmed = url.trim().toLowerCase();
+  // Bloquear javascript: data: y protocolos maliciosos
+  if (trimmed.startsWith("javascript:") || trimmed.startsWith("data:") || trimmed.startsWith("blob:")) {
+    console.warn("URL maliciosa detectada:", url);
+    return "";
+  }
+  // Debe ser http/https o mailto/tel
+  if (!trimmed.match(/^(https?|mailto|tel):/)) {
+    // Si no tiene protocolo, asumir https
+    return /^https?:\/\//.test(trimmed) ? url : `https://${url}`;
+  }
+  return url;
+};
+
+// Validar email según formato básico
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// Validar teléfono
+const isValidPhone = (phone: string): boolean => {
+  // Aceptar números, espacios, guiones, paréntesis, +
+  return /^[\d\s\-()++]+$/.test(phone) && phone.replace(/\D/g, "").length >= 8;
+};
+
+// Sanitizar nombre de archivo para evitar inyección de caminos
+const sanitizeFileName = (fileName: string): string => {
+  return fileName
+    .replace(/\.\./g, "") // Evitar recorrido de directorio
+    .replace(/[<>:"|?*]/g, "") // Caracteres inválidos en Windows/Unix
+    .substring(0, 255); // Limitar longitud
+};
+
+// Validar tamaño de archivo en MB
+const isValidFileSize = (file: File, maxMB: number): boolean => {
+  return file.size <= maxMB * 1024 * 1024;
+};
+
+// Validar que JSON.parse recuperado tenga la estructura correcta
+const isValidPortfolioData = (data: any): boolean => {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    (data.heroInfo === undefined || typeof data.heroInfo === "object") &&
+    (data.contactInfo === undefined || typeof data.contactInfo === "object") &&
+    (data.footerInfo === undefined || typeof data.footerInfo === "object") &&
+    (data.appData === undefined || typeof data.appData === "object")
+  );
+};
+
+// Limitar tamaño total de localStorage
+const getLocalStorageSize = (): number => {
+  let size = 0;
+  for (let key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      size += localStorage[key].length + key.length;
+    }
+  }
+  return Math.round(size / 1024); // Retornar en KB
+};
+
+const MAX_STORAGE_KB = 4000; // Límite de 4MB (el usual es 5MB)
+const MAX_IMAGE_MB = 2;
+const MAX_CV_MB = 10;
+
 const iconMap: Record<string, React.ElementType> = {
   Sun,
   Zap,
@@ -210,6 +283,24 @@ export default function App() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validar tipo de archivo
+      if (!file.type.startsWith("image/")) {
+        alert("⚠️ Solo se permiten imágenes");
+        return;
+      }
+      
+      // Validar tamaño
+      if (!isValidFileSize(file, MAX_IMAGE_MB)) {
+        alert(`⚠️ La imagen no debe exceder ${MAX_IMAGE_MB}MB`);
+        return;
+      }
+      
+      // Validar espacio en localStorage
+      if (getLocalStorageSize() > MAX_STORAGE_KB) {
+        alert("⚠️ Almacenamiento lleno. Limpia datos antiguos.");
+        return;
+      }
+      
       const url = URL.createObjectURL(file);
       setProfilePic(url);
     }
@@ -217,10 +308,31 @@ export default function App() {
 
   const handleCVUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
+    if (file) {
+      // Validar tipo de archivo
+      if (file.type !== "application/pdf") {
+        alert("⚠️ Solo se permiten archivos PDF");
+        return;
+      }
+      
+      // Validar tamaño
+      if (!isValidFileSize(file, MAX_CV_MB)) {
+        alert(`⚠️ El CV no debe exceder ${MAX_CV_MB}MB`);
+        return;
+      }
+      
+      // Validar espacio en localStorage
+      if (getLocalStorageSize() > MAX_STORAGE_KB) {
+        alert("⚠️ Almacenamiento lleno. Limpia datos antiguos.");
+        return;
+      }
+      
+      // Sanitizar nombre de archivo
+      const safeName = sanitizeFileName(file.name);
+      
       setCvFile(file);
-      setCvFileName(file.name);
-      localStorage.setItem("cvFileName", file.name);
+      setCvFileName(safeName);
+      localStorage.setItem("cvFileName", safeName);
 
       // Guardar el CV como base64 en localStorage
       const reader = new FileReader();
@@ -228,9 +340,10 @@ export default function App() {
         const base64 = event.target?.result as string;
         localStorage.setItem("cvFileData", base64);
       };
+      reader.onerror = () => {
+        alert("⚠️ Error al leer el archivo");
+      };
       reader.readAsDataURL(file);
-    } else if (file) {
-      alert('Por favor selecciona un archivo PDF válido');
     }
   };
 
@@ -266,9 +379,38 @@ export default function App() {
         .then(blob => {
           const file = new File([blob], cvFileName, { type: 'application/pdf' });
           setCvFile(file);
-        });
+        })
+        .catch(err => console.error("Error cargando CV:", err));
     }
   }, []);
+
+  // Manejador seguro para cambios en contactInfo con validación
+  const handleContactInfoChange = (field: string, value: string) => {
+    let sanitizedValue = value;
+    
+    // Validar por campo
+    switch (field) {
+      case "email":
+        if (value && !isValidEmail(value)) {
+          console.warn("Email inválido:", value);
+        }
+        break;
+      case "phone":
+        if (value && !isValidPhone(value)) {
+          console.warn("Teléfono inválido:", value);
+        }
+        break;
+      case "linkedin":
+        sanitizedValue = sanitizeUrl(value);
+        break;
+      case "location":
+        // Limitar longitud para evitar ataques de DoS
+        sanitizedValue = value.substring(0, 200);
+        break;
+    }
+    
+    setContactInfo({ ...contactInfo, [field]: sanitizedValue });
+  };
 
   const handleExperienceChange = (index: number, field: string, value: string) => {
     const newExperiences = [...appData.experiences];
@@ -717,23 +859,29 @@ export default function App() {
                     <label className="block text-xs text-zinc-500 mb-1">Correo Electrónico</label>
                     <input 
                       value={contactInfo.email} 
-                      onChange={e => setContactInfo({...contactInfo, email: e.target.value})} 
+                      onChange={e => handleContactInfoChange("email", e.target.value)} 
                       className="w-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand transition-all duration-300 focus:shadow-[0_0_15px_rgba(59,130,246,0.15)]" 
                     />
+                    {contactInfo.email && !isValidEmail(contactInfo.email) && (
+                      <p className="text-yellow-400 text-xs mt-1">⚠️ Email inválido</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs text-zinc-500 mb-1">Teléfono</label>
                     <input 
                       value={contactInfo.phone} 
-                      onChange={e => setContactInfo({...contactInfo, phone: e.target.value})} 
+                      onChange={e => handleContactInfoChange("phone", e.target.value)} 
                       className="w-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand transition-all duration-300 focus:shadow-[0_0_15px_rgba(59,130,246,0.15)]" 
                     />
+                    {contactInfo.phone && !isValidPhone(contactInfo.phone) && (
+                      <p className="text-yellow-400 text-xs mt-1">⚠️ Teléfono inválido</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs text-zinc-500 mb-1">LinkedIn URL</label>
                     <input 
                       value={contactInfo.linkedin} 
-                      onChange={e => setContactInfo({...contactInfo, linkedin: e.target.value})} 
+                      onChange={e => handleContactInfoChange("linkedin", e.target.value)} 
                       className="w-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand transition-all duration-300 focus:shadow-[0_0_15px_rgba(59,130,246,0.15)]" 
                     />
                   </div>
@@ -741,7 +889,7 @@ export default function App() {
                     <label className="block text-xs text-zinc-500 mb-1">Ubicación</label>
                     <input 
                       value={contactInfo.location} 
-                      onChange={e => setContactInfo({...contactInfo, location: e.target.value})} 
+                      onChange={e => handleContactInfoChange("location", e.target.value)} 
                       className="w-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand transition-all duration-300 focus:shadow-[0_0_15px_rgba(59,130,246,0.15)]" 
                     />
                   </div>
