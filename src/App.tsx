@@ -726,7 +726,7 @@ export default function App() {
       </section>
 
       {/* Footer CTA */}
-      <section id="contacto" className="py-24 px-6 max-w-3xl mx-auto text-center">
+      <section id="contacto" className="py-12 px-6 max-w-3xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -736,11 +736,11 @@ export default function App() {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             {footerInfo.title}
           </h2>
-          <p className="text-zinc-400 mb-8">
+          <p className="text-zinc-400 mb-6">
             {footerInfo.description}
           </p>
           
-          <div className="flex flex-wrap justify-center gap-4 mb-16">
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
             <a 
               href={`mailto:${contactInfo.email}`} 
               className="inline-flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-6 py-2.5 rounded-lg font-medium transition-colors duration-200 shadow-lg shadow-brand/20 text-base"
@@ -757,7 +757,7 @@ export default function App() {
             </a>
           </div>
 
-          <div className="border-t border-zinc-800 pt-8 flex flex-col items-center gap-4">
+          <div className="border-t border-zinc-800 pt-4 flex flex-col items-center gap-4">
             <div className="flex items-center gap-2 text-sm text-zinc-500">
               <MapPin className="w-4 h-4" />
               <span>{contactInfo.location}</span>
