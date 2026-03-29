@@ -467,31 +467,28 @@ export default function App() {
     <div className="min-h-screen bg-bg-dark text-white selection:bg-brand/30 selection:text-white pb-24 relative overflow-hidden">
       
       {/* Background Glows for Liquid Glass Effect */}
-      <div className="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand/20 blur-[120px] pointer-events-none z-0"></div>
-      <div className="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-900/20 blur-[120px] pointer-events-none z-0"></div>
-
       {/* Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 z-40 bg-bg-dark/80 backdrop-blur-md border-b border-zinc-800/50">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between text-sm font-medium text-zinc-400">
+      <nav className="fixed top-0 left-0 right-0 z-40 bg-bg-dark border-b border-zinc-800">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between text-sm font-medium text-white">
           
           {/* Botón de Perfil / Admin */}
           <button 
             onClick={() => isAuthenticated ? setIsAdminOpen(true) : setIsLoginOpen(true)}
-            className="w-10 h-10 rounded-full overflow-hidden border border-white/10 hover:border-brand transition-colors bg-white/5 backdrop-blur-sm flex items-center justify-center group shadow-[0_0_15px_rgba(0,0,0,0.2)]"
+            className="w-10 h-10 rounded-full overflow-hidden border-2 border-zinc-600 flex items-center justify-center bg-zinc-900 hover:border-brand hover:bg-blue-900/20 transition-all duration-200"
             title="Editar Portfolio"
           >
             {profilePic ? (
               <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
             ) : (
-              <User className="w-5 h-5 text-zinc-400 group-hover:text-brand transition-colors" />
+              <User className="w-5 h-5 text-white group-hover:text-brand" />
             )}
           </button>
 
-          <div className="flex items-center gap-4 md:gap-8 overflow-x-auto no-scrollbar">
-            <a href="#experiencia" className="hover:text-white whitespace-nowrap transition-colors">Experiencia</a>
-            <a href="#habilidades" className="hover:text-white whitespace-nowrap transition-colors">Habilidades</a>
-            <a href="#educacion" className="hover:text-white whitespace-nowrap transition-colors">Educación</a>
-            <a href="#contacto" className="hover:text-white whitespace-nowrap transition-colors">Contacto</a>
+          <div className="flex items-center gap-6 md:gap-10">
+            <a href="#experiencia" className="text-white hover:text-brand transition-colors duration-200">Experiencia</a>
+            <a href="#habilidades" className="text-white hover:text-brand transition-colors duration-200">Habilidades</a>
+            <a href="#educacion" className="text-white hover:text-brand transition-colors duration-200">Educación</a>
+            <a href="#contacto" className="text-white hover:text-brand transition-colors duration-200">Contacto</a>
           </div>
         </div>
       </nav>
@@ -685,10 +682,10 @@ export default function App() {
           <div className="flex flex-wrap justify-center gap-4 mb-16">
             <a 
               href={`mailto:${contactInfo.email}`} 
-              className="inline-flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:scale-105 shadow-lg shadow-brand/20"
+              className="inline-flex items-center gap-2 bg-brand hover:bg-brand-hover text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:scale-105 shadow-lg shadow-brand/20 text-base"
             >
               <Mail className="w-5 h-5" />
-              {contactInfo.email}
+              <span className="font-semibold">{contactInfo.email}</span>
             </a>
             <a 
               href={`tel:+34${contactInfo.phone.replace(/\s/g, '')}`} 
